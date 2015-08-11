@@ -14,17 +14,20 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
+import android.widget.AbsListView;
 import android.widget.Button;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import twitter4j.Paging;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import twitter4j.auth.AccessToken;
 import twitter4j.auth.RequestToken;
 
-public class TwitterListActivity extends AppCompatActivity implements View.OnClickListener {
+public class TwitterListActivity extends AppCompatActivity
+        implements View.OnClickListener {
     private static final String TAG = TwitterListActivity.class.getSimpleName();
 
     private static final String PREFERENCE_NAME = "twitter_oauth";
@@ -34,6 +37,8 @@ public class TwitterListActivity extends AppCompatActivity implements View.OnCli
     private static RequestToken mRequestToken;
     private String mAccessToken;
     private String mAccessTokenSecret;
+
+    private int currentPage = 1;
 
     private Twitter mTwitter;
     private List<TweetModel> mTweetList = new ArrayList<TweetModel>();
@@ -58,7 +63,14 @@ public class TwitterListActivity extends AppCompatActivity implements View.OnCli
         btnLogin.setOnClickListener(this);
 
         RecyclerView rvTweetList = (RecyclerView) findViewById(R.id.activity_twitterlist_lv_tweet_list);
-        rvTweetList.setLayoutManager(new LinearLayoutManager(this));
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+        rvTweetList.setLayoutManager(linearLayoutManager);
+        rvTweetList.setOnScrollListener(new EndlessRecyclerOnScrollListener(linearLayoutManager) {
+            @Override
+            public void onLoadMore(int current_page) {
+                TwitterListActivity.this.loadMoreTweets();
+            }
+        });
         mTweetListAdapter = new TweetListAdapter(this, mTweetList);
         rvTweetList.setAdapter(mTweetListAdapter);
 
@@ -97,8 +109,15 @@ public class TwitterListActivity extends AppCompatActivity implements View.OnCli
         return true;
     }
 
-    public void processLogin() {
+    private void processLogin() {
         new TwitterRequestAsyncTask(this).execute(CommandType.GET_REQUEST_TOKEN);
+    }
+
+    private void loadMoreTweets() {
+        currentPage++;
+        new TwitterRequestAsyncTask(this).execute(CommandType.GET_USER_TWEETS);
+
+        Log.i(TAG, "fetch page: " + currentPage);
     }
 
     @Override
@@ -172,7 +191,9 @@ public class TwitterListActivity extends AppCompatActivity implements View.OnCli
         private Object doGetUserTweets() {
             Log.i(TAG, "doGetUserTweets");
             try {
-                List<twitter4j.Status> list = mTwitter.getHomeTimeline();
+                Paging page = new Paging(currentPage, 20);
+
+                List<twitter4j.Status> list = mTwitter.getHomeTimeline(page);
 
                 return list;
             } catch (TwitterException e) {
@@ -185,6 +206,17 @@ public class TwitterListActivity extends AppCompatActivity implements View.OnCli
         private void postGetUserTweets(List<twitter4j.Status> list) {
             Log.i(TAG, "postGetUserTweets");
 
+            if (list.size() == 0) {
+                if (currentPage != 1) {
+                    currentPage--;
+                }
+            }
+
+
+            if (currentPage == 1) {
+                mTweetList.clear();
+            }
+
             for (twitter4j.Status status : list) {
                 TweetModel tweet = new TweetModel(
                         status.getUser().getName(),
@@ -196,7 +228,6 @@ public class TwitterListActivity extends AppCompatActivity implements View.OnCli
                 mTweetList.add(tweet);
                 mTweetListAdapter.notifyItemInserted(mTweetList.size());
             }
-
         }
 
         @Override
