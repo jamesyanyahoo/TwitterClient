@@ -1,4 +1,4 @@
-package com.yahoo.shopping.twitterclient;
+package com.yahoo.shopping.twitterclient.fragments;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -11,6 +11,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.yahoo.shopping.twitterclient.R;
+
 /**
  * Created by jamesyan on 8/11/15.
  */
@@ -18,7 +20,7 @@ public class PostTweetDialogFragment extends DialogFragment {
 
     private static PostTweetDialogFragment sDialogFragment;
 
-    public static PostTweetDialogFragment newInstance(String title) {
+    public static PostTweetDialogFragment newInstance() {
         if (sDialogFragment == null) {
             sDialogFragment = new PostTweetDialogFragment();
         }
@@ -29,7 +31,7 @@ public class PostTweetDialogFragment extends DialogFragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        getDialog().setTitle("POST YOUR TWEET");
+        getDialog().setTitle("WRITE YOUR TWEET");
 
         View view = inflater.inflate(R.layout.dialog_post_tweet, container);
         final EditText txtTweet = (EditText) view.findViewById(R.id.dialog_tweet_txt_tweet);
@@ -39,6 +41,8 @@ public class PostTweetDialogFragment extends DialogFragment {
         btnApply.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                ((OnFinishEditing)getActivity()).onFinishEditing(txtTweet.getText().toString());
+
                 PostTweetDialogFragment.this.dismiss();
             }
         });
@@ -52,5 +56,9 @@ public class PostTweetDialogFragment extends DialogFragment {
         });
 
         return view;
+    }
+
+    public interface OnFinishEditing {
+        void onFinishEditing(String tweet);
     }
 }

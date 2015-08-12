@@ -1,4 +1,4 @@
-package com.yahoo.shopping.twitterclient;
+package com.yahoo.shopping.twitterclient.models;
 
 import com.activeandroid.Model;
 import com.activeandroid.annotation.Column;
@@ -24,7 +24,6 @@ public class TweetModel extends Model {
     private Date postDate;
 
     public TweetModel() {
-
     }
 
     public TweetModel(String name, String account, String profileImageUrl, String tweet, Date postDate) {

@@ -1,4 +1,4 @@
-package com.yahoo.shopping.twitterclient;
+package com.yahoo.shopping.twitterclient.activities;
 
 import android.content.Context;
 import android.content.Intent;
@@ -19,9 +19,17 @@ import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.activeandroid.query.Delete;
 import com.activeandroid.query.Select;
+import com.yahoo.shopping.twitterclient.R;
+import com.yahoo.shopping.twitterclient.adapters.TweetListAdapter;
+import com.yahoo.shopping.twitterclient.applications.TwitterClientApplication;
+import com.yahoo.shopping.twitterclient.constants.TwitterConstant;
+import com.yahoo.shopping.twitterclient.fragments.PostTweetDialogFragment;
+import com.yahoo.shopping.twitterclient.interfaces.EndlessRecyclerOnScrollListener;
+import com.yahoo.shopping.twitterclient.models.TweetModel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +41,7 @@ import twitter4j.auth.AccessToken;
 import twitter4j.auth.RequestToken;
 
 public class TwitterListActivity extends AppCompatActivity
-        implements View.OnClickListener, SwipeRefreshLayout.OnRefreshListener {
+        implements View.OnClickListener, SwipeRefreshLayout.OnRefreshListener, PostTweetDialogFragment.OnFinishEditing {
     private static final String TAG = TwitterListActivity.class.getSimpleName();
 
     private static final String PREFERENCE_NAME = "twitter_oauth";
@@ -47,7 +55,7 @@ public class TwitterListActivity extends AppCompatActivity
     private int currentPage = 1;
 
     private Twitter mTwitter;
-    private List<TweetModel> mTweetList = new ArrayList<TweetModel>();
+    private List<TweetModel> mTweetList = new ArrayList<>();
     private TweetListAdapter mTweetListAdapter;
     private SwipeRefreshLayout mSwipeRefreshLayout;
 
@@ -89,7 +97,7 @@ public class TwitterListActivity extends AppCompatActivity
             @Override
             public void onClick(View v) {
                 FragmentManager fragmentManager = getSupportFragmentManager();
-                PostTweetDialogFragment dialog = PostTweetDialogFragment.newInstance("Settings");
+                PostTweetDialogFragment dialog = PostTweetDialogFragment.newInstance();
                 dialog.show(fragmentManager, "fragment_dialog_config");
             }
         });
@@ -129,7 +137,7 @@ public class TwitterListActivity extends AppCompatActivity
     protected void onStop() {
         super.onStop();
 
-        if (mTweetList.size()>0) {
+        if (mTweetList.size() > 0) {
             Log.i(TAG, "remove all from cache");
             new Delete().from(TweetModel.class).execute();
 
@@ -146,6 +154,10 @@ public class TwitterListActivity extends AppCompatActivity
 
     private void refreshTweetList() {
         new TwitterRequestAsyncTask(this).execute(CommandType.GET_USER_TWEETS);
+    }
+
+    private void postTweet(String tweet) {
+        new TwitterRequestAsyncTask(this).execute(CommandType.POST_TWEET, tweet);
     }
 
     private void loadMoreTweets() {
@@ -167,11 +179,11 @@ public class TwitterListActivity extends AppCompatActivity
     private boolean isConnectingToInternet() {
         ConnectivityManager connectivity = (ConnectivityManager) this.getSystemService(Context.CONNECTIVITY_SERVICE);
         if (connectivity != null) {
-            NetworkInfo[] info = connectivity.getAllNetworkInfo();
+            NetworkInfo[] networkInfo = connectivity.getAllNetworkInfo();
 
-            if (info != null) {
-                for (int i = 0; i < info.length; i++) {
-                    if (info[i].getState() == NetworkInfo.State.CONNECTED) {
+            if (networkInfo != null) {
+                for (NetworkInfo info: networkInfo) {
+                    if (info.getState() == NetworkInfo.State.CONNECTED) {
                         return true;
                     }
                 }
@@ -194,8 +206,8 @@ public class TwitterListActivity extends AppCompatActivity
     }
 
     private void showLoginButton() {
-            findViewById(R.id.activity_twitterlist_tv_info).setVisibility(View.INVISIBLE);
-            findViewById(R.id.activity_twitterlist_btn_login).setVisibility(View.VISIBLE);
+        findViewById(R.id.activity_twitterlist_tv_info).setVisibility(View.INVISIBLE);
+        findViewById(R.id.activity_twitterlist_btn_login).setVisibility(View.VISIBLE);
     }
 
     private void showInfo(String text) {
@@ -218,8 +230,17 @@ public class TwitterListActivity extends AppCompatActivity
         refreshTweetList();
     }
 
+    @Override
+    public void onFinishEditing(String tweet) {
+        if (tweet == null || tweet.isEmpty()) {
+            Toast.makeText(this, getResources().getString(R.string.empty_tweet_warning), Toast.LENGTH_SHORT).show();
+            return;
+        }
+        postTweet(tweet);
+    }
+
     enum CommandType {
-        GET_REQUEST_TOKEN, GET_ACCESS_TOKEN, GET_USER_TWEETS
+        GET_REQUEST_TOKEN, GET_ACCESS_TOKEN, GET_USER_TWEETS, POST_TWEET
     }
 
     private class TwitterRequestAsyncTask extends AsyncTask<Object, Void, Object> {
@@ -277,6 +298,7 @@ public class TwitterListActivity extends AppCompatActivity
         }
 
         private void postGetAccessToken() {
+            showInfo(getResources().getString(R.string.loading));
             refreshTweetList();
         }
 
@@ -284,10 +306,7 @@ public class TwitterListActivity extends AppCompatActivity
             Log.i(TAG, "doGetUserTweets");
             try {
                 Paging page = new Paging(currentPage, 20);
-
-                List<twitter4j.Status> list = mTwitter.getHomeTimeline(page);
-
-                return list;
+                return mTwitter.getHomeTimeline(page);
             } catch (TwitterException e) {
                 e.printStackTrace();
             }
@@ -312,7 +331,7 @@ public class TwitterListActivity extends AppCompatActivity
                 mTweetListAdapter.notifyDataSetChanged();
             }
 
-            for (twitter4j.Status status : list) {
+            for (twitter4j.Status status: list) {
                 TweetModel tweet = new TweetModel(
                         status.getUser().getName(),
                         status.getUser().getScreenName(),
@@ -325,6 +344,25 @@ public class TwitterListActivity extends AppCompatActivity
             }
 
             mSwipeRefreshLayout.setRefreshing(false);
+            showInformationPanel(false);
+        }
+
+        private Object doPostTweet(String tweet) {
+            Log.i(TAG, "doPostTweet");
+
+            try {
+                mTwitter.updateStatus(tweet);
+            } catch (TwitterException e) {
+                e.printStackTrace();
+            }
+
+            return null;
+        }
+
+        private void postPostTweet() {
+            Log.i(TAG, "postPostTweet");
+
+            refreshTweetList();
         }
 
         @Override
@@ -339,6 +377,9 @@ public class TwitterListActivity extends AppCompatActivity
                     return doGetAccessToken(verifer);
                 case GET_USER_TWEETS:
                     return doGetUserTweets();
+                case POST_TWEET:
+                    String tweet = (String) params[1];
+                    return doPostTweet(tweet);
             }
 
             return null;
@@ -355,6 +396,9 @@ public class TwitterListActivity extends AppCompatActivity
                     break;
                 case GET_USER_TWEETS:
                     postGetUserTweets((List<twitter4j.Status>) object);
+                    break;
+                case POST_TWEET:
+                    postPostTweet();
                     break;
             }
         }

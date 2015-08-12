@@ -34,6 +34,7 @@
             android:id="@+id/listitem_twitterlist_item_tv_post_date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
             android:layout_toRightOf="@id/listitem_twitterlist_item_tv_account"
             android:paddingLeft="7dp"
             android:paddingTop="8dp"
@@ -46,9 +47,10 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/listitem_twitterlist_item_tv_name"
             android:layout_toRightOf="@id/listitem_twitterlist_item_iv_profile_image"
+            android:autoLink="web"
+            android:paddingBottom="7dp"
             android:paddingLeft="7dp"
             android:paddingRight="7dp"
-            android:paddingBottom="7dp"
             android:textSize="12sp" />
     </RelativeLayout>
 

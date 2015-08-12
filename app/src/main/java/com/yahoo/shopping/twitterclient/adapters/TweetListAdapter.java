@@ -1,4 +1,4 @@
-package com.yahoo.shopping.twitterclient;
+package com.yahoo.shopping.twitterclient.adapters;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
@@ -10,6 +10,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
+import com.yahoo.shopping.twitterclient.R;
+import com.yahoo.shopping.twitterclient.models.TweetModel;
 
 import org.ocpsoft.prettytime.PrettyTime;
 
@@ -21,7 +23,6 @@ import java.util.List;
 public class TweetListAdapter extends RecyclerView.Adapter<TweetListAdapter.ViewHolder> {
     private Context mContext;
     private List<TweetModel> mTweetList;
-    private int lastPosition = -1;
 
     public TweetListAdapter(Context context, List<TweetModel> objects) {
         this.mContext = context;
@@ -31,8 +32,8 @@ public class TweetListAdapter extends RecyclerView.Adapter<TweetListAdapter.View
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
         LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-
         View view = inflater.inflate(R.layout.listitem_twitterlist_item, null);
+
         TextView tvName = (TextView) view.findViewById(R.id.listitem_twitterlist_item_tv_name);
         TextView tvAccount = (TextView) view.findViewById(R.id.listitem_twitterlist_item_tv_account);
         ImageView ivProfile = (ImageView) view.findViewById(R.id.listitem_twitterlist_item_iv_profile_image);

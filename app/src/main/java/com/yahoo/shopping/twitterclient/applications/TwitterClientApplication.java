@@ -1,8 +1,7 @@
-package com.yahoo.shopping.twitterclient;
-
-
+package com.yahoo.shopping.twitterclient.applications;
 
 import com.activeandroid.app.Application;
+import com.yahoo.shopping.twitterclient.constants.TwitterConstant;
 
 import twitter4j.Twitter;
 import twitter4j.TwitterFactory;

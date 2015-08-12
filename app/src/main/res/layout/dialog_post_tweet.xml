@@ -4,18 +4,6 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="16dp">
-<!--
-    <TextView
-        android:id="@+id/dialog_tweet_tv_tweet_info"
-        android:layout_width="115dp"
-        android:layout_height="52dp"
-        android:layout_marginBottom="2dp"
-        android:gravity="center_vertical"
-        android:text="POST YOUR TWEET"
-        android:textSize="12sp"
-        android:textStyle="bold" />
-
--->
     <EditText
         android:id="@+id/dialog_tweet_txt_tweet"
         android:layout_width="match_parent"
@@ -33,6 +21,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/dialog_tweet_txt_tweet"
         android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
         android:gravity="center_vertical"
         android:text="140 Character(s) Left"
         android:textSize="12sp"
@@ -43,8 +32,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
         android:layout_below="@id/dialog_tweet_tv_tweet_counts"
         android:layout_margin="7dp"
-        android:text="Apply" />
+        android:text="@string/post_tweet" />
 
 </RelativeLayout>
