@@ -23,6 +23,10 @@ public class TweetModel extends Model {
     @Column(name = "post_date")
     private Date postDate;
 
+    public TweetModel() {
+
+    }
+
     public TweetModel(String name, String account, String profileImageUrl, String tweet, Date postDate) {
         this.name = name;
         this.account = account;

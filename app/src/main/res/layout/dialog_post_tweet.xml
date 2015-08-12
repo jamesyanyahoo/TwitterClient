@@ -2,33 +2,48 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
-
+    android:orientation="vertical"
+    android:padding="16dp">
+<!--
     <TextView
-        android:id="@+id/dialog_tweet_tv_tweet"
+        android:id="@+id/dialog_tweet_tv_tweet_info"
         android:layout_width="115dp"
         android:layout_height="52dp"
         android:layout_marginBottom="2dp"
         android:gravity="center_vertical"
-        android:text="TWEET"
-        android:textSize="15sp"
+        android:text="POST YOUR TWEET"
+        android:textSize="12sp"
         android:textStyle="bold" />
 
+-->
     <EditText
         android:id="@+id/dialog_tweet_txt_tweet"
         android:layout_width="match_parent"
-        android:layout_height="52dp"
+        android:layout_height="wrap_content"
         android:layout_marginBottom="2dp"
+        android:gravity="top|left"
+        android:inputType="textMultiLine"
+        android:lines="5"
+        android:scrollbars="vertical"
+        android:textSize="12sp" />
+
+    <TextView
+        android:id="@+id/dialog_tweet_tv_tweet_counts"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/dialog_tweet_txt_tweet"
+        android:layout_alignParentRight="true"
         android:gravity="center_vertical"
-        android:textSize="15sp"
-        android:layout_toRightOf="@id/dialog_tweet_tv_tweet"/>
+        android:text="140 Character(s) Left"
+        android:textSize="12sp"
+        android:textStyle="bold" />
 
     <Button
         android:id="@+id/dialog_tweet_btn_apply"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
-        android:layout_below="@id/dialog_tweet_txt_tweet"
+        android:layout_below="@id/dialog_tweet_tv_tweet_counts"
         android:layout_margin="7dp"
         android:text="Apply" />
 

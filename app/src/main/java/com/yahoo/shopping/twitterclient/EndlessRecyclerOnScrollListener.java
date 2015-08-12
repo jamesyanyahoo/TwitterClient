@@ -1,5 +1,6 @@
 package com.yahoo.shopping.twitterclient;
 
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
@@ -17,9 +18,11 @@ public abstract class EndlessRecyclerOnScrollListener extends RecyclerView.OnScr
     private int current_page = 1;
 
     private LinearLayoutManager mLinearLayoutManager;
+    private SwipeRefreshLayout mSwipeRefreshLayout;
 
-    public EndlessRecyclerOnScrollListener(LinearLayoutManager linearLayoutManager) {
+    public EndlessRecyclerOnScrollListener(LinearLayoutManager linearLayoutManager, SwipeRefreshLayout swipeRefreshLayout) {
         this.mLinearLayoutManager = linearLayoutManager;
+        this.mSwipeRefreshLayout = swipeRefreshLayout;
     }
 
     @Override
@@ -42,10 +45,14 @@ public abstract class EndlessRecyclerOnScrollListener extends RecyclerView.OnScr
 
             // Do something
             current_page++;
-
             onLoadMore(current_page);
-
             loading = true;
+        }
+
+        if (firstVisibleItem > 0) {
+            mSwipeRefreshLayout.setEnabled(false);
+        } else {
+            mSwipeRefreshLayout.setEnabled(true);
         }
     }
 
