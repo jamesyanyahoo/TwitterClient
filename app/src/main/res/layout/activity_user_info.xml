@@ -1,0 +1,59 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.yahoo.shopping.twitterclient.UserInfoActivity">
+
+    <ImageView
+        android:id="@+id/activity_user_info_iv_profile"
+        android:layout_width="55dp"
+        android:layout_height="55dp"
+        android:layout_marginBottom="12dp"
+        android:layout_marginLeft="22dp"
+        android:layout_marginTop="22dp" />
+
+    <TextView
+        android:id="@+id/activity_user_info_tv_account"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="12dp"
+        android:layout_marginTop="22dp"
+        android:layout_toRightOf="@id/activity_user_info_iv_profile"
+        android:text="jamesyanyahoo"
+        android:textSize="22sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/activity_user_info_tv_followings"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_below="@id/activity_user_info_tv_account"
+        android:layout_marginRight="12dp"
+        android:layout_marginTop="7dp"
+        android:text="0 followings"
+        android:textColor="@android:color/darker_gray" />
+
+    <TextView
+        android:id="@+id/activity_user_info_tv_followers"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/activity_user_info_tv_account"
+        android:layout_marginRight="12dp"
+        android:layout_marginTop="7dp"
+        android:layout_toLeftOf="@id/activity_user_info_tv_followings"
+        android:layout_toStartOf="@id/activity_user_info_tv_followings"
+        android:text="0 followers"
+        android:textColor="@android:color/darker_gray" />
+
+
+    <ListView
+        android:id="@+id/activity_user_info_lv_comments"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_below="@id/activity_user_info_tv_followers"
+        android:layout_marginLeft="7dp"
+        android:layout_marginRight="7dp"
+        android:layout_marginTop="12dp"></ListView>
+
+</RelativeLayout>

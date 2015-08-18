@@ -33,6 +33,8 @@ dependencies {
     compile 'com.android.support:recyclerview-v7:22.2.0'
     compile 'com.android.support:design:22.2.0'
 
+    compile 'com.astuetz:pagerslidingtabstrip:1.0.1'
+
     compile 'org.ocpsoft.prettytime:prettytime:3.2.7.Final'
 
     // Picasso for remote image loading

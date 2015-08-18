@@ -1,233 +1,100 @@
 package com.yahoo.shopping.twitterclient.activities;
 
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.Menu;
-import android.view.View;
-import android.widget.Button;
-import android.widget.TextView;
+import android.view.MenuItem;
 import android.widget.Toast;
 
-import com.activeandroid.query.Delete;
-import com.activeandroid.query.Select;
+import com.astuetz.PagerSlidingTabStrip;
 import com.yahoo.shopping.twitterclient.R;
-import com.yahoo.shopping.twitterclient.adapters.TweetListAdapter;
-import com.yahoo.shopping.twitterclient.applications.TwitterClientApplication;
+import com.yahoo.shopping.twitterclient.UserInfoActivity;
+import com.yahoo.shopping.twitterclient.asynctask.TwitterRequestAsyncTask;
+import com.yahoo.shopping.twitterclient.constants.CommandType;
 import com.yahoo.shopping.twitterclient.constants.TwitterConstant;
+import com.yahoo.shopping.twitterclient.fragments.MentionListFragment;
 import com.yahoo.shopping.twitterclient.fragments.PostTweetDialogFragment;
-import com.yahoo.shopping.twitterclient.interfaces.EndlessRecyclerOnScrollListener;
-import com.yahoo.shopping.twitterclient.models.TweetModel;
+import com.yahoo.shopping.twitterclient.fragments.TwitterListFragment;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
-import twitter4j.Paging;
-import twitter4j.Twitter;
-import twitter4j.TwitterException;
-import twitter4j.auth.AccessToken;
-import twitter4j.auth.RequestToken;
-
-public class TwitterListActivity extends AppCompatActivity
-        implements View.OnClickListener, SwipeRefreshLayout.OnRefreshListener, PostTweetDialogFragment.OnFinishEditing {
+public class TwitterListActivity extends AppCompatActivity implements PostTweetDialogFragment.OnFinishEditing {
     private static final String TAG = TwitterListActivity.class.getSimpleName();
 
-    private static final String PREFERENCE_NAME = "twitter_oauth";
-    private static final String PREF_KEY_OAUTH_TOKEN = "oauth_token";
-    private static final String PREF_KEY_OAUTH_SECRET = "oauth_token_secret";
-
-    private static RequestToken mRequestToken;
-    private String mAccessToken;
-    private String mAccessTokenSecret;
-
-    private int currentPage = 1;
-
-    private Twitter mTwitter;
-    private List<TweetModel> mTweetList = new ArrayList<>();
-    private TweetListAdapter mTweetListAdapter;
-    private SwipeRefreshLayout mSwipeRefreshLayout;
+    TwitterListFragment mTwitterListFragment;
+    MentionListFragment mMentionListFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_twitterlist);
 
-        mTwitter = ((TwitterClientApplication) getApplication()).getTwitterClient();
+        mTwitterListFragment = new TwitterListFragment();
+        mMentionListFragment = new MentionListFragment();
 
         // handle intent get access token
         Uri uri = getIntent().getData();
         if (uri != null && uri.toString().startsWith(TwitterConstant.TWITTER_CALLBACK_URL)) {
             String verifier = uri.getQueryParameter(TwitterConstant.URL_TWITTER_OAUTH_VERIFIER);
-            new TwitterRequestAsyncTask(this).execute(CommandType.GET_ACCESS_TOKEN, verifier);
+            new TwitterRequestAsyncTask(mTwitterListFragment, this).execute(CommandType.GET_ACCESS_TOKEN, verifier);
         }
 
-        // setup callbacks
-        Button btnLogin = (Button) findViewById(R.id.activity_twitterlist_btn_login);
-        btnLogin.setOnClickListener(this);
+        ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
+        viewPager.setAdapter(new TwitterFragmentPageAdapter(getSupportFragmentManager(),
+                Arrays.asList(mTwitterListFragment, mMentionListFragment), Arrays.asList("Time Line", "Mentions")));
 
-        mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.activity_twitterlist_ly_swipe_refresh);
-        mSwipeRefreshLayout.setOnRefreshListener(this);
-
-        RecyclerView rvTweetList = (RecyclerView) findViewById(R.id.activity_twitterlist_lv_tweet_list);
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
-        rvTweetList.setLayoutManager(linearLayoutManager);
-        rvTweetList.setOnScrollListener(new EndlessRecyclerOnScrollListener(linearLayoutManager, mSwipeRefreshLayout) {
-            @Override
-            public void onLoadMore(int current_page) {
-                TwitterListActivity.this.loadMoreTweets();
-            }
-        });
-        mTweetListAdapter = new TweetListAdapter(this, mTweetList);
-        rvTweetList.setAdapter(mTweetListAdapter);
-
-        FloatingActionButton btnPostTweet = (FloatingActionButton) findViewById(R.id.activity_twitterlist_btn_post_tweet);
-        btnPostTweet.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                FragmentManager fragmentManager = getSupportFragmentManager();
-                PostTweetDialogFragment dialog = PostTweetDialogFragment.newInstance();
-                dialog.show(fragmentManager, "fragment_dialog_config");
-            }
-        });
-
-        // getting access token from preference
-        SharedPreferences preferences = getSharedPreferences(PREFERENCE_NAME, MODE_PRIVATE);
-        mAccessToken = preferences.getString(PREF_KEY_OAUTH_TOKEN, "");
-        mAccessTokenSecret = preferences.getString(PREF_KEY_OAUTH_SECRET, "");
-
-        if (!mAccessToken.isEmpty() && !mAccessTokenSecret.isEmpty()) {
-            Log.i(TAG, "get access token: " + mAccessToken);
-            Log.i(TAG, "get access token secret: " + mAccessTokenSecret);
-
-            AccessToken accessToken = new AccessToken(mAccessToken, mAccessTokenSecret);
-            mTwitter.setOAuthAccessToken(accessToken);
-
-            if (isConnectingToInternet()) {
-                refreshTweetList();
-            } else {
-                loadDataFromCache();
-            }
-        } else {
-            Log.i(TAG, "should go to login for getting the tokens");
-            showInformationPanel(true);
-            showLoginButton();
-        }
+        PagerSlidingTabStrip tabsStrip = (PagerSlidingTabStrip) findViewById(R.id.tabs);
+        tabsStrip.setViewPager(viewPager);
     }
 
     // Inflate the menu; this adds items to the action bar if it is present.
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.login, menu);
+        getMenuInflater().inflate(R.menu.menu, menu);
+
         return true;
     }
 
     @Override
-    protected void onStop() {
-        super.onStop();
-
-        if (mTweetList.size() > 0) {
-            Log.i(TAG, "remove all from cache");
-            new Delete().from(TweetModel.class).execute();
-
-            Log.i(TAG, "store the tweet data in cache");
-            for (TweetModel tweet : mTweetList) {
-                tweet.save();
-            }
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.menu_item_user_info) {
+            Intent intent = new Intent(this, UserInfoActivity.class);
+            startActivity(intent);
         }
+        return true;
     }
 
-    private void processLogin() {
-        new TwitterRequestAsyncTask(this).execute(CommandType.GET_REQUEST_TOKEN);
-    }
+    class TwitterFragmentPageAdapter extends FragmentPagerAdapter {
+        private List<Fragment> mFragmentList;
+        private List<String> mTitleList;
 
-    private void refreshTweetList() {
-        new TwitterRequestAsyncTask(this).execute(CommandType.GET_USER_TWEETS);
-    }
-
-    private void postTweet(String tweet) {
-        new TwitterRequestAsyncTask(this).execute(CommandType.POST_TWEET, tweet);
-    }
-
-    private void loadMoreTweets() {
-        currentPage++;
-        new TwitterRequestAsyncTask(this).execute(CommandType.GET_USER_TWEETS);
-
-        Log.i(TAG, "fetch page: " + currentPage);
-    }
-
-    private void loadDataFromCache() {
-        Log.i(TAG, "loadDataFromCache");
-
-        List<TweetModel> list = new Select().from(TweetModel.class).execute();
-        mTweetList.clear();
-        mTweetList.addAll(list);
-        mTweetListAdapter.notifyDataSetChanged();
-    }
-
-    private boolean isConnectingToInternet() {
-        ConnectivityManager connectivity = (ConnectivityManager) this.getSystemService(Context.CONNECTIVITY_SERVICE);
-        if (connectivity != null) {
-            NetworkInfo[] networkInfo = connectivity.getAllNetworkInfo();
-
-            if (networkInfo != null) {
-                for (NetworkInfo info: networkInfo) {
-                    if (info.getState() == NetworkInfo.State.CONNECTED) {
-                        return true;
-                    }
-                }
-            }
-
+        public TwitterFragmentPageAdapter(FragmentManager fm, List<Fragment> fragmentList, List<String> titleList) {
+            super(fm);
+            mFragmentList = fragmentList;
+            mTitleList = titleList;
         }
-        return false;
-    }
 
-    private void showInformationPanel(boolean isShow) {
-        if (isShow) {
-            findViewById(R.id.activity_twitterlist_fl_info).setVisibility(View.VISIBLE);
-            findViewById(R.id.activity_twitterlist_lv_tweet_list).setVisibility(View.INVISIBLE);
-            findViewById(R.id.activity_twitterlist_btn_post_tweet).setVisibility(View.INVISIBLE);
-        } else {
-            findViewById(R.id.activity_twitterlist_fl_info).setVisibility(View.INVISIBLE);
-            findViewById(R.id.activity_twitterlist_lv_tweet_list).setVisibility(View.VISIBLE);
-            findViewById(R.id.activity_twitterlist_btn_post_tweet).setVisibility(View.VISIBLE);
+        @Override
+        public Fragment getItem(int position) {
+            return mFragmentList.get(position);
         }
-    }
 
-    private void showLoginButton() {
-        findViewById(R.id.activity_twitterlist_tv_info).setVisibility(View.INVISIBLE);
-        findViewById(R.id.activity_twitterlist_btn_login).setVisibility(View.VISIBLE);
-    }
-
-    private void showInfo(String text) {
-        findViewById(R.id.activity_twitterlist_tv_info).setVisibility(View.VISIBLE);
-        findViewById(R.id.activity_twitterlist_btn_login).setVisibility(View.INVISIBLE);
-
-        TextView tvInfo = (TextView) findViewById(R.id.activity_twitterlist_tv_info);
-        tvInfo.setText(text);
-    }
-
-    @Override
-    public void onClick(View v) {
-        if (v.getId() == R.id.activity_twitterlist_btn_login) {
-            processLogin();
+        @Override
+        public int getCount() {
+            return mFragmentList.size();
         }
-    }
 
-    @Override
-    public void onRefresh() {
-        refreshTweetList();
+        @Override
+        public CharSequence getPageTitle(int position) {
+            return mTitleList.get(position);
+        }
     }
 
     @Override
@@ -239,169 +106,22 @@ public class TwitterListActivity extends AppCompatActivity
         postTweet(tweet);
     }
 
-    enum CommandType {
-        GET_REQUEST_TOKEN, GET_ACCESS_TOKEN, GET_USER_TWEETS, POST_TWEET
+    private void postTweet(String tweet) {
+        new TwitterRequestAsyncTask(mTwitterListFragment, this).execute(CommandType.POST_TWEET, tweet);
     }
 
-    private class TwitterRequestAsyncTask extends AsyncTask<Object, Void, Object> {
-        private Context mContext;
-        private CommandType mCommandType;
-
-        public TwitterRequestAsyncTask(Context context) {
-            mContext = context;
-        }
-
-        private Object doGetRequestToken() {
-            Log.i(TAG, "doGetRequestToken");
-            try {
-                mRequestToken = mTwitter.getOAuthRequestToken(TwitterConstant.TWITTER_CALLBACK_URL);
-            } catch (TwitterException e) {
-                mRequestToken = null;
-                e.printStackTrace();
-            }
-
-            return mRequestToken;
-        }
-
-        private void postGetRequestToken(Object object) {
-            Log.i(TAG, "postGetRequestToken");
-            RequestToken token = (RequestToken) object;
-
-            if (token != null) {
-                mContext.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(token.getAuthorizationURL())));
-            }
-        }
-
-        private Object doGetAccessToken(String verifier) {
-            Log.i(TAG, "doGetAccessToken");
-
-            if (mRequestToken == null) {
-                Log.i(TAG, "doGetAccessToken fail: mRequestToken  is null");
-                return null;
-            }
-
-            try {
-                AccessToken token = mTwitter.getOAuthAccessToken(mRequestToken, verifier);
-                mAccessToken = token.getToken();
-                mAccessTokenSecret = token.getTokenSecret();
-
-                SharedPreferences preferences = mContext.getSharedPreferences(PREFERENCE_NAME, MODE_PRIVATE);
-                SharedPreferences.Editor editor = preferences.edit();
-                editor.putString(PREF_KEY_OAUTH_TOKEN, mAccessToken);
-                editor.putString(PREF_KEY_OAUTH_SECRET, mAccessTokenSecret);
-                editor.apply();
-            } catch (TwitterException e) {
-                e.printStackTrace();
-            }
-
-            return null;
-        }
-
-        private void postGetAccessToken() {
-            showInfo(getResources().getString(R.string.loading));
-            refreshTweetList();
-        }
-
-        private Object doGetUserTweets() {
-            Log.i(TAG, "doGetUserTweets");
-            try {
-                Paging page = new Paging(currentPage, 20);
-                return mTwitter.getHomeTimeline(page);
-            } catch (TwitterException e) {
-                e.printStackTrace();
-            }
-
-            return null;
-        }
-
-        private void postGetUserTweets(List<twitter4j.Status> list) {
-            Log.i(TAG, "postGetUserTweets");
-
-            if (list == null)
-                return;
-
-            if (list.size() == 0) {
-                if (currentPage != 1) {
-                    currentPage--;
-                }
-            }
-
-            if (currentPage == 1) {
-                mTweetList.clear();
-                mTweetListAdapter.notifyDataSetChanged();
-            }
-
-            for (twitter4j.Status status: list) {
-                TweetModel tweet = new TweetModel(
-                        status.getUser().getName(),
-                        status.getUser().getScreenName(),
-                        status.getUser().getMiniProfileImageURL(),
-                        status.getText(),
-                        status.getCreatedAt());
-
-                mTweetList.add(tweet);
-                mTweetListAdapter.notifyItemInserted(mTweetList.size());
-            }
-
-            mSwipeRefreshLayout.setRefreshing(false);
-            showInformationPanel(false);
-        }
-
-        private Object doPostTweet(String tweet) {
-            Log.i(TAG, "doPostTweet");
-
-            try {
-                mTwitter.updateStatus(tweet);
-            } catch (TwitterException e) {
-                e.printStackTrace();
-            }
-
-            return null;
-        }
-
-        private void postPostTweet() {
-            Log.i(TAG, "postPostTweet");
-
-            refreshTweetList();
-        }
-
-        @Override
-        protected Object doInBackground(Object... params) {
-            mCommandType = (CommandType) params[0];
-
-            switch (mCommandType) {
-                case GET_REQUEST_TOKEN:
-                    return doGetRequestToken();
-                case GET_ACCESS_TOKEN:
-                    String verifer = (String) params[1];
-                    return doGetAccessToken(verifer);
-                case GET_USER_TWEETS:
-                    return doGetUserTweets();
-                case POST_TWEET:
-                    String tweet = (String) params[1];
-                    return doPostTweet(tweet);
-            }
-
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Object object) {
-            switch (mCommandType) {
-                case GET_REQUEST_TOKEN:
-                    postGetRequestToken(object);
-                    break;
-                case GET_ACCESS_TOKEN:
-                    postGetAccessToken();
-                    break;
-                case GET_USER_TWEETS:
-                    postGetUserTweets((List<twitter4j.Status>) object);
-                    break;
-                case POST_TWEET:
-                    postPostTweet();
-                    break;
-            }
-        }
-    }
-
+//    @Override
+//    protected void onStop() {
+//        super.onStop();
+//
+//        if (mTweetList.size() > 0) {
+//            Log.i(TAG, "remove all from cache");
+//            new Delete().from(TweetModel.class).execute();
+//
+//            Log.i(TAG, "store the tweet data in cache");
+//            for (TweetModel tweet : mTweetList) {
+//                tweet.save();
+//            }
+//        }
+//    }
 }

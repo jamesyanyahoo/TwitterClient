@@ -1,6 +1,7 @@
 package com.yahoo.shopping.twitterclient.adapters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
 import android.view.LayoutInflater;
@@ -11,6 +12,8 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 import com.yahoo.shopping.twitterclient.R;
+import com.yahoo.shopping.twitterclient.UserInfoActivity;
+import com.yahoo.shopping.twitterclient.fragments.TwitterListFragment;
 import com.yahoo.shopping.twitterclient.models.TweetModel;
 
 import org.ocpsoft.prettytime.PrettyTime;
@@ -45,7 +48,7 @@ public class TweetListAdapter extends RecyclerView.Adapter<TweetListAdapter.View
 
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, int i) {
-        TweetModel tweet = mTweetList.get(i);
+        final TweetModel tweet = mTweetList.get(i);
 
         viewHolder.mName.setText(tweet.getName());
         viewHolder.mAccount.setText("@" + tweet.getAccount());
@@ -53,6 +56,15 @@ public class TweetListAdapter extends RecyclerView.Adapter<TweetListAdapter.View
         viewHolder.mPostDate.setText(new PrettyTime().format(tweet.getPostDate()));
 
         Picasso.with(mContext).load(tweet.getProfileImageUrl()).into(viewHolder.mProfileImage);
+        viewHolder.mProfileImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(mContext, UserInfoActivity.class);
+                intent.putExtra(TwitterListFragment.USER_SCREEN_NAME, tweet.getAccount());
+
+                mContext.startActivity(intent);
+            }
+        });
     }
 
     @Override

@@ -1,53 +1,21 @@
-<?xml version="1.0" encoding="utf-8"?>
-<android.support.v4.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/activity_twitterlist_ly_swipe_refresh"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="3dp">
+    android:orientation="vertical">
 
-    <android.support.design.widget.CoordinatorLayout
+    <com.astuetz.PagerSlidingTabStrip
+        android:id="@+id/tabs"
+        app:pstsShouldExpand="true"
+        app:pstsTextAllCaps="true"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="48dp">
+    </com.astuetz.PagerSlidingTabStrip>
 
-        <FrameLayout
-            android:id="@+id/activity_twitterlist_fl_info"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
+    <android.support.v4.view.ViewPager
+        android:id="@+id/viewpager"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/white" />
 
-            <TextView
-                android:id="@+id/activity_twitterlist_tv_info"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_margin="20dp"
-                android:text="@string/loading" />
-
-            <Button
-                android:id="@+id/activity_twitterlist_btn_login"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_margin="20dp"
-                android:text="@string/login_label"
-                android:visibility="invisible" />
-        </FrameLayout>
-
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/activity_twitterlist_lv_tweet_list"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
-
-        <android.support.design.widget.FloatingActionButton
-            android:id="@+id/activity_twitterlist_btn_post_tweet"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom|end"
-            android:layout_margin="28dp"
-            android:src="@android:drawable/ic_menu_edit"
-            app:borderWidth="0dp"
-            app:fabSize="normal"
-            app:layout_anchor="@id/activity_twitterlist_lv_tweet_list"
-            app:layout_anchorGravity="bottom|end" />
-    </android.support.design.widget.CoordinatorLayout>
-</android.support.v4.widget.SwipeRefreshLayout>
+</LinearLayout>
