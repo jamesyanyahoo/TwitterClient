@@ -33,7 +33,7 @@ public class PostTweetDialogFragment extends DialogFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         getDialog().setTitle("WRITE YOUR TWEET");
 
-        View view = inflater.inflate(R.layout.dialog_post_tweet, container);
+        View view = inflater.inflate(R.layout.dialog_tweet_post, container);
         final EditText txtTweet = (EditText) view.findViewById(R.id.dialog_tweet_txt_tweet);
         final TextView tvCounter = (TextView) view.findViewById(R.id.dialog_tweet_tv_tweet_counts);
         Button btnApply = (Button) view.findViewById(R.id.dialog_tweet_btn_apply);

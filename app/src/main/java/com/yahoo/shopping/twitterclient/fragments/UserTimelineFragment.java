@@ -21,17 +21,16 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.activeandroid.query.Select;
 import com.yahoo.shopping.twitterclient.R;
-import com.yahoo.shopping.twitterclient.adapters.TweetListAdapter;
+import com.yahoo.shopping.twitterclient.adapters.TweetAdapter;
 import com.yahoo.shopping.twitterclient.applications.TwitterClientApplication;
-import com.yahoo.shopping.twitterclient.asynctask.TwitterRequestAsyncTask;
+import com.yahoo.shopping.twitterclient.asynctask.GenericTwitterRequestAsyncTask;
 import com.yahoo.shopping.twitterclient.constants.CommandType;
 import com.yahoo.shopping.twitterclient.constants.TwitterConstant;
 import com.yahoo.shopping.twitterclient.interfaces.EndlessRecyclerOnScrollListener;
-import com.yahoo.shopping.twitterclient.interfaces.TwitterEventListener;
+import com.yahoo.shopping.twitterclient.interfaces.TwitterRequestCallback;
 import com.yahoo.shopping.twitterclient.models.TweetModel;
 
 import java.util.ArrayList;
@@ -45,9 +44,9 @@ import twitter4j.auth.RequestToken;
 /**
  * Created by jamesyan on 8/18/15.
  */
-public class TwitterListFragment extends Fragment
-        implements View.OnClickListener, SwipeRefreshLayout.OnRefreshListener, TwitterEventListener {
-    private static final String TAG = TwitterListFragment.class.getSimpleName();
+public class UserTimelineFragment extends Fragment
+        implements View.OnClickListener, SwipeRefreshLayout.OnRefreshListener, TwitterRequestCallback {
+    private static final String TAG = UserTimelineFragment.class.getSimpleName();
 
     public static final String USER_SCREEN_NAME = "USER_SCREEN_NAME";
 
@@ -55,7 +54,7 @@ public class TwitterListFragment extends Fragment
 
     private Twitter mTwitter;
     private List<TweetModel> mTweetList = new ArrayList<>();
-    private TweetListAdapter mTweetListAdapter;
+    private TweetAdapter mTweetListAdapter;
     private SwipeRefreshLayout mSwipeRefreshLayout;
 
     private String mAccessToken;
@@ -75,7 +74,7 @@ public class TwitterListFragment extends Fragment
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        mFragmentView = inflater.inflate(R.layout.fragment_twitterlist, null);
+        mFragmentView = inflater.inflate(R.layout.fragment_user_tweets, null);
 
         // setup callbacks
         Button btnLogin = (Button) mFragmentView.findViewById(R.id.activity_twitterlist_btn_login);
@@ -90,10 +89,10 @@ public class TwitterListFragment extends Fragment
         rvTweetList.setOnScrollListener(new EndlessRecyclerOnScrollListener(linearLayoutManager, mSwipeRefreshLayout) {
             @Override
             public void onLoadMore(int current_page) {
-                TwitterListFragment.this.loadMoreTweets();
+                UserTimelineFragment.this.loadMoreTweets();
             }
         });
-        mTweetListAdapter = new TweetListAdapter(getActivity(), mTweetList);
+        mTweetListAdapter = new TweetAdapter(getActivity(), mTweetList);
         rvTweetList.setAdapter(mTweetListAdapter);
 
         FloatingActionButton btnPostTweet = (FloatingActionButton) mFragmentView.findViewById(R.id.activity_twitterlist_btn_post_tweet);
@@ -140,15 +139,17 @@ public class TwitterListFragment extends Fragment
     }
 
     private void processLogin() {
-        new TwitterRequestAsyncTask(this, mContext).execute(CommandType.GET_REQUEST_TOKEN);
+        new GenericTwitterRequestAsyncTask(this, mContext).execute(CommandType.GET_REQUEST_TOKEN);
     }
 
     private void refreshTweetList() {
-        new TwitterRequestAsyncTask(this, mContext).execute(CommandType.GET_USER_TWEETS, currentPage);
+        new GenericTwitterRequestAsyncTask(this, mContext).execute(CommandType.GET_USER_TWEETS, currentPage);
     }
 
     private void loadMoreTweets() {
-        new TwitterRequestAsyncTask(this, mContext).execute(CommandType.GET_USER_TWEETS, ++currentPage);
+        showLoadMoreIndicater(true);
+
+        new GenericTwitterRequestAsyncTask(this, mContext).execute(CommandType.GET_USER_TWEETS, ++currentPage);
 
         Log.i(TAG, "fetch page: " + currentPage);
     }
@@ -181,11 +182,11 @@ public class TwitterListFragment extends Fragment
 
     private void showInformationPanel(boolean isShow) {
         if (isShow) {
-            mFragmentView.findViewById(R.id.activity_twitterlist_fl_info).setVisibility(View.VISIBLE);
+            mFragmentView.findViewById(R.id.activity_twitterlist_ll_info).setVisibility(View.VISIBLE);
             mFragmentView.findViewById(R.id.activity_twitterlist_lv_tweet_list).setVisibility(View.INVISIBLE);
             mFragmentView.findViewById(R.id.activity_twitterlist_btn_post_tweet).setVisibility(View.INVISIBLE);
         } else {
-            mFragmentView.findViewById(R.id.activity_twitterlist_fl_info).setVisibility(View.INVISIBLE);
+            mFragmentView.findViewById(R.id.activity_twitterlist_ll_info).setVisibility(View.INVISIBLE);
             mFragmentView.findViewById(R.id.activity_twitterlist_lv_tweet_list).setVisibility(View.VISIBLE);
             mFragmentView.findViewById(R.id.activity_twitterlist_btn_post_tweet).setVisibility(View.VISIBLE);
         }
@@ -202,6 +203,14 @@ public class TwitterListFragment extends Fragment
 
         TextView tvInfo = (TextView) mFragmentView.findViewById(R.id.activity_twitterlist_tv_info);
         tvInfo.setText(text);
+    }
+
+    private void showLoadMoreIndicater(boolean isShow) {
+        if (isShow) {
+            mFragmentView.findViewById(R.id.activity_twitterlist_pb_loadmore_indicator).setVisibility(View.VISIBLE);
+        } else {
+            mFragmentView.findViewById(R.id.activity_twitterlist_pb_loadmore_indicator).setVisibility(View.INVISIBLE);
+        }
     }
 
 
@@ -259,11 +268,12 @@ public class TwitterListFragment extends Fragment
 
         mSwipeRefreshLayout.setRefreshing(false);
         showInformationPanel(false);
+        showLoadMoreIndicater(false);
     }
 
     @Override
     public void postPostTweet() {
-        Log.i(TwitterListFragment.TAG, "postPostTweet");
+        Log.i(UserTimelineFragment.TAG, "postPostTweet");
 
         refreshTweetList();
     }

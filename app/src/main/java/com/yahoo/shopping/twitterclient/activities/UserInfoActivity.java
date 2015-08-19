@@ -1,8 +1,8 @@
-package com.yahoo.shopping.twitterclient;
+package com.yahoo.shopping.twitterclient.activities;
 
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
@@ -10,12 +10,13 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
-import com.yahoo.shopping.twitterclient.adapters.UserTweetListAdapter;
-import com.yahoo.shopping.twitterclient.asynctask.TwitterRequestUserInfoAsyncTask;
-import com.yahoo.shopping.twitterclient.fragments.TwitterListFragment;
+import com.yahoo.shopping.twitterclient.R;
+import com.yahoo.shopping.twitterclient.adapters.TweetSimpleAdapter;
+import com.yahoo.shopping.twitterclient.asynctask.UserInfoAsyncTask;
+import com.yahoo.shopping.twitterclient.fragments.UserTimelineFragment;
 import com.yahoo.shopping.twitterclient.models.UserModel;
 
-public class UserInfoActivity extends AppCompatActivity implements TwitterRequestUserInfoAsyncTask.PostGetUserInfo {
+public class UserInfoActivity extends AppCompatActivity implements UserInfoAsyncTask.PostGetUserInfo {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,14 +25,14 @@ public class UserInfoActivity extends AppCompatActivity implements TwitterReques
 
         Intent intent = getIntent();
         if (intent != null) {
-            String screenName = intent.getStringExtra(TwitterListFragment.USER_SCREEN_NAME);
+            String screenName = intent.getStringExtra(UserTimelineFragment.USER_SCREEN_NAME);
             if (screenName != null && !screenName.isEmpty()) {
-                new TwitterRequestUserInfoAsyncTask(this, this).execute(screenName);
+                new UserInfoAsyncTask(this, this).execute(screenName);
                 return;
             }
         }
 
-        new TwitterRequestUserInfoAsyncTask(this, this).execute();
+        new UserInfoAsyncTask(this, this).execute();
     }
 
     @Override
@@ -43,16 +44,6 @@ public class UserInfoActivity extends AppCompatActivity implements TwitterReques
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
         return super.onOptionsItemSelected(item);
     }
 
@@ -69,6 +60,6 @@ public class UserInfoActivity extends AppCompatActivity implements TwitterReques
         tvFollowers.setText(user.getUser().getFollowersCount() + " followers");
         tvFollowings.setText(user.getUser().getFriendsCount() + " followings");
 
-        lvComments.setAdapter(new UserTweetListAdapter(this, 0, user.getTweetList()));
+        lvComments.setAdapter(new TweetSimpleAdapter(this, 0, user.getTweetList()));
     }
 }

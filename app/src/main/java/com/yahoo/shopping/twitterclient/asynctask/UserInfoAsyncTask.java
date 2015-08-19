@@ -12,8 +12,6 @@ import com.yahoo.shopping.twitterclient.models.UserModel;
 import java.util.List;
 
 import twitter4j.Paging;
-import twitter4j.ResponseList;
-import twitter4j.Status;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import twitter4j.User;
@@ -22,15 +20,15 @@ import twitter4j.auth.AccessToken;
 /**
  * Created by jamesyan on 8/18/15.
  */
-public class TwitterRequestUserInfoAsyncTask extends AsyncTask<String, Void, UserModel> {
-    private static final String TAG = TwitterRequestUserInfoAsyncTask.class.getSimpleName();
+public class UserInfoAsyncTask extends AsyncTask<String, Void, UserModel> {
+    private static final String TAG = UserInfoAsyncTask.class.getSimpleName();
 
     private TwitterClientApplication mApplication;
     private Twitter mTwitter;
     private Context mContext;
     private PostGetUserInfo mHandler;
 
-    public TwitterRequestUserInfoAsyncTask(PostGetUserInfo handler, Context context) {
+    public UserInfoAsyncTask(PostGetUserInfo handler, Context context) {
         mHandler = handler;
         mContext = context;
         mApplication = (TwitterClientApplication) context.getApplicationContext();

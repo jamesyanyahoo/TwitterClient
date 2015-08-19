@@ -14,36 +14,35 @@ import android.widget.Toast;
 
 import com.astuetz.PagerSlidingTabStrip;
 import com.yahoo.shopping.twitterclient.R;
-import com.yahoo.shopping.twitterclient.UserInfoActivity;
-import com.yahoo.shopping.twitterclient.asynctask.TwitterRequestAsyncTask;
+import com.yahoo.shopping.twitterclient.asynctask.GenericTwitterRequestAsyncTask;
 import com.yahoo.shopping.twitterclient.constants.CommandType;
 import com.yahoo.shopping.twitterclient.constants.TwitterConstant;
-import com.yahoo.shopping.twitterclient.fragments.MentionListFragment;
+import com.yahoo.shopping.twitterclient.fragments.UserMentionsFragment;
 import com.yahoo.shopping.twitterclient.fragments.PostTweetDialogFragment;
-import com.yahoo.shopping.twitterclient.fragments.TwitterListFragment;
+import com.yahoo.shopping.twitterclient.fragments.UserTimelineFragment;
 
 import java.util.Arrays;
 import java.util.List;
 
-public class TwitterListActivity extends AppCompatActivity implements PostTweetDialogFragment.OnFinishEditing {
-    private static final String TAG = TwitterListActivity.class.getSimpleName();
+public class TwitterActivity extends AppCompatActivity implements PostTweetDialogFragment.OnFinishEditing {
+    private static final String TAG = TwitterActivity.class.getSimpleName();
 
-    TwitterListFragment mTwitterListFragment;
-    MentionListFragment mMentionListFragment;
+    UserTimelineFragment mTwitterListFragment;
+    UserMentionsFragment mMentionListFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_twitterlist);
+        setContentView(R.layout.activity_user_timeline);
 
-        mTwitterListFragment = new TwitterListFragment();
-        mMentionListFragment = new MentionListFragment();
+        mTwitterListFragment = new UserTimelineFragment();
+        mMentionListFragment = new UserMentionsFragment();
 
         // handle intent get access token
         Uri uri = getIntent().getData();
         if (uri != null && uri.toString().startsWith(TwitterConstant.TWITTER_CALLBACK_URL)) {
             String verifier = uri.getQueryParameter(TwitterConstant.URL_TWITTER_OAUTH_VERIFIER);
-            new TwitterRequestAsyncTask(mTwitterListFragment, this).execute(CommandType.GET_ACCESS_TOKEN, verifier);
+            new GenericTwitterRequestAsyncTask(mTwitterListFragment, this).execute(CommandType.GET_ACCESS_TOKEN, verifier);
         }
 
         ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
@@ -107,7 +106,7 @@ public class TwitterListActivity extends AppCompatActivity implements PostTweetD
     }
 
     private void postTweet(String tweet) {
-        new TwitterRequestAsyncTask(mTwitterListFragment, this).execute(CommandType.POST_TWEET, tweet);
+        new GenericTwitterRequestAsyncTask(mTwitterListFragment, this).execute(CommandType.POST_TWEET, tweet);
     }
 
 //    @Override

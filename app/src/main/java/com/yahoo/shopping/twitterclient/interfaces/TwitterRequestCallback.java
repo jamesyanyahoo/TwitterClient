@@ -7,7 +7,7 @@ import twitter4j.Status;
 /**
  * Created by jamesyan on 8/18/15.
  */
-public interface TwitterEventListener {
+public interface TwitterRequestCallback {
     void postGetRequestToken(Object object);
     void postGetAccessToken();
     void postGetUserTweets(List<Status> list);

@@ -18,11 +18,11 @@ import twitter4j.Status;
 /**
  * Created by jamesyan on 8/19/15.
  */
-public class UserTweetListAdapter extends ArrayAdapter<Status> {
+public class TweetSimpleAdapter extends ArrayAdapter<Status> {
     private Context mContext;
     private List<Status> mTweetList;
 
-    public UserTweetListAdapter(Context context, int resource, List<Status> objects) {
+    public TweetSimpleAdapter(Context context, int resource, List<Status> objects) {
         super(context, resource, objects);
 
         mContext = context;
@@ -33,7 +33,7 @@ public class UserTweetListAdapter extends ArrayAdapter<Status> {
     public View getView(int position, View convertView, ViewGroup parent) {
         if (convertView == null) {
             LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            convertView = inflater.inflate(R.layout.listitem_user_tweet_list, null);
+            convertView = inflater.inflate(R.layout.listitem_tweet_simple, null);
         }
 
         Status status = mTweetList.get(position);

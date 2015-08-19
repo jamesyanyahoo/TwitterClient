@@ -19,8 +19,7 @@
         android:layout_marginLeft="12dp"
         android:layout_marginTop="22dp"
         android:layout_toRightOf="@id/activity_user_info_iv_profile"
-        android:text="jamesyanyahoo"
-        android:textSize="22sp"
+        android:textSize="15sp"
         android:textStyle="bold" />
 
     <TextView
@@ -31,8 +30,8 @@
         android:layout_below="@id/activity_user_info_tv_account"
         android:layout_marginRight="12dp"
         android:layout_marginTop="7dp"
-        android:text="0 followings"
-        android:textColor="@android:color/darker_gray" />
+        android:textColor="@android:color/darker_gray"
+        android:textSize="10sp" />
 
     <TextView
         android:id="@+id/activity_user_info_tv_followers"
@@ -43,8 +42,8 @@
         android:layout_marginTop="7dp"
         android:layout_toLeftOf="@id/activity_user_info_tv_followings"
         android:layout_toStartOf="@id/activity_user_info_tv_followings"
-        android:text="0 followers"
-        android:textColor="@android:color/darker_gray" />
+        android:textColor="@android:color/darker_gray"
+        android:textSize="10sp" />
 
 
     <ListView
@@ -54,6 +53,6 @@
         android:layout_below="@id/activity_user_info_tv_followers"
         android:layout_marginLeft="7dp"
         android:layout_marginRight="7dp"
-        android:layout_marginTop="12dp"></ListView>
+        android:layout_marginTop="22dp"></ListView>
 
 </RelativeLayout>

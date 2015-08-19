@@ -4,6 +4,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="16dp">
+
     <EditText
         android:id="@+id/dialog_tweet_txt_tweet"
         android:layout_width="match_parent"
@@ -23,7 +24,7 @@
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:gravity="center_vertical"
-        android:text="140 Character(s) Left"
+        android:text="@string/tweet_limit_statement"
         android:textSize="12sp"
         android:textStyle="bold" />
 

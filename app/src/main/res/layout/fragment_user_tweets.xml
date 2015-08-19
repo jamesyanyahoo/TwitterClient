@@ -10,36 +10,35 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <FrameLayout
-            android:id="@+id/activity_twitterlist_fl_info"
+        <RelativeLayout
+            android:id="@+id/activity_twitterlist_ll_info"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
-
-            <ProgressBar
-                android:id="@+id/activity_twitterlist_pb_loading_indicator"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="112dp"
-                android:layout_marginTop="190dp"
-                style="@android:style/Widget.ProgressBar.Small"/>
 
             <TextView
                 android:id="@+id/activity_twitterlist_tv_info"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_margin="20dp"
+                android:layout_centerInParent="true"
                 android:text="@string/loading" />
+
+            <ProgressBar
+                android:id="@+id/activity_twitterlist_pb_loading_indicator"
+                style="@android:style/Widget.ProgressBar.Small"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:layout_marginRight="2dp"
+                android:layout_toLeftOf="@id/activity_twitterlist_tv_info" />
 
             <Button
                 android:id="@+id/activity_twitterlist_btn_login"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
                 android:layout_margin="20dp"
                 android:text="@string/login_label"
                 android:visibility="invisible" />
-        </FrameLayout>
+        </RelativeLayout>
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/activity_twitterlist_lv_tweet_list"
@@ -51,12 +50,22 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|end"
-            android:layout_margin="28dp"
+            android:layout_margin="12dp"
             android:src="@android:drawable/ic_menu_edit"
             app:borderWidth="0dp"
             app:fabSize="normal"
             app:layout_anchor="@id/activity_twitterlist_lv_tweet_list"
             app:layout_anchorGravity="bottom|end" />
+
+        <ProgressBar
+            android:id="@+id/activity_twitterlist_pb_loadmore_indicator"
+            style="@android:style/Widget.ProgressBar.Small"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="invisible"
+            android:layout_marginBottom="7dp"
+            app:layout_anchor="@id/activity_twitterlist_lv_tweet_list"
+            app:layout_anchorGravity="bottom|center" />
     </android.support.design.widget.CoordinatorLayout>
 
 </android.support.v4.widget.SwipeRefreshLayout>

@@ -6,8 +6,8 @@
 
     <ImageView
         android:id="@+id/listitem_user_tweetlist_iv_profile"
-        android:layout_width="35dp"
-        android:layout_height="35dp"
+        android:layout_width="28dp"
+        android:layout_height="28dp"
         android:layout_margin="5dp" />
 
     <TextView
@@ -15,6 +15,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="7dp"
+        android:textSize="11sp"
         android:autoLink="web"
         android:gravity="center_vertical" />
 

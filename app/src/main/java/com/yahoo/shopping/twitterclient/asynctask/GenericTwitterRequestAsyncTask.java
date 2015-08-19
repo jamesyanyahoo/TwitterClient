@@ -8,7 +8,7 @@ import android.util.Log;
 import com.yahoo.shopping.twitterclient.applications.TwitterClientApplication;
 import com.yahoo.shopping.twitterclient.constants.CommandType;
 import com.yahoo.shopping.twitterclient.constants.TwitterConstant;
-import com.yahoo.shopping.twitterclient.interfaces.TwitterEventListener;
+import com.yahoo.shopping.twitterclient.interfaces.TwitterRequestCallback;
 
 import java.util.List;
 
@@ -21,16 +21,16 @@ import twitter4j.auth.RequestToken;
 /**
  * Created by jamesyan on 8/18/15.
  */
-public class TwitterRequestAsyncTask extends AsyncTask<Object, Void, Object> {
-    private static final String TAG = TwitterRequestAsyncTask.class.getSimpleName();
+public class GenericTwitterRequestAsyncTask extends AsyncTask<Object, Void, Object> {
+    private static final String TAG = GenericTwitterRequestAsyncTask.class.getSimpleName();
 
-    private TwitterEventListener mEventListener;
+    private TwitterRequestCallback mEventListener;
     private TwitterClientApplication mApplication;
     private CommandType mCommandType;
     private Twitter mTwitter;
     private Context mContext;
 
-    public TwitterRequestAsyncTask(TwitterEventListener eventListener, Context context) {
+    public GenericTwitterRequestAsyncTask(TwitterRequestCallback eventListener, Context context) {
         mEventListener = eventListener;
         mContext = context;
         mApplication = (TwitterClientApplication) context.getApplicationContext();

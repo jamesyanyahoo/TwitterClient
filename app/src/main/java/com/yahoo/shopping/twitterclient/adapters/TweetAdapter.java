@@ -12,8 +12,8 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 import com.yahoo.shopping.twitterclient.R;
-import com.yahoo.shopping.twitterclient.UserInfoActivity;
-import com.yahoo.shopping.twitterclient.fragments.TwitterListFragment;
+import com.yahoo.shopping.twitterclient.activities.UserInfoActivity;
+import com.yahoo.shopping.twitterclient.fragments.UserTimelineFragment;
 import com.yahoo.shopping.twitterclient.models.TweetModel;
 
 import org.ocpsoft.prettytime.PrettyTime;
@@ -23,11 +23,11 @@ import java.util.List;
 /**
  * Created by jamesyan on 8/11/15.
  */
-public class TweetListAdapter extends RecyclerView.Adapter<TweetListAdapter.ViewHolder> {
+public class TweetAdapter extends RecyclerView.Adapter<TweetAdapter.ViewHolder> {
     private Context mContext;
     private List<TweetModel> mTweetList;
 
-    public TweetListAdapter(Context context, List<TweetModel> objects) {
+    public TweetAdapter(Context context, List<TweetModel> objects) {
         this.mContext = context;
         this.mTweetList = objects;
     }
@@ -35,7 +35,7 @@ public class TweetListAdapter extends RecyclerView.Adapter<TweetListAdapter.View
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
         LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View view = inflater.inflate(R.layout.listitem_twitterlist_item, null);
+        View view = inflater.inflate(R.layout.listitem_tweet, null);
 
         TextView tvName = (TextView) view.findViewById(R.id.listitem_twitterlist_item_tv_name);
         TextView tvAccount = (TextView) view.findViewById(R.id.listitem_twitterlist_item_tv_account);
@@ -60,7 +60,7 @@ public class TweetListAdapter extends RecyclerView.Adapter<TweetListAdapter.View
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(mContext, UserInfoActivity.class);
-                intent.putExtra(TwitterListFragment.USER_SCREEN_NAME, tweet.getAccount());
+                intent.putExtra(UserTimelineFragment.USER_SCREEN_NAME, tweet.getAccount());
 
                 mContext.startActivity(intent);
             }
