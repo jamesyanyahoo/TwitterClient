@@ -24,14 +24,14 @@ import twitter4j.auth.RequestToken;
 public class GenericTwitterRequestAsyncTask extends AsyncTask<Object, Void, Object> {
     private static final String TAG = GenericTwitterRequestAsyncTask.class.getSimpleName();
 
-    private TwitterRequestCallback mEventListener;
+    private TwitterRequestCallback mRequestCallback;
     private TwitterClientApplication mApplication;
     private CommandType mCommandType;
     private Twitter mTwitter;
     private Context mContext;
 
     public GenericTwitterRequestAsyncTask(TwitterRequestCallback eventListener, Context context) {
-        mEventListener = eventListener;
+        mRequestCallback = eventListener;
         mContext = context;
         mApplication = (TwitterClientApplication) context.getApplicationContext();
         mTwitter = mApplication.getTwitterClient();
@@ -123,16 +123,16 @@ public class GenericTwitterRequestAsyncTask extends AsyncTask<Object, Void, Obje
     protected void onPostExecute(Object object) {
         switch (mCommandType) {
             case GET_REQUEST_TOKEN:
-                mEventListener.postGetRequestToken(object);
+                mRequestCallback.postGetRequestToken(object);
                 break;
             case GET_ACCESS_TOKEN:
-                mEventListener.postGetAccessToken();
+                mRequestCallback.postGetAccessToken();
                 break;
             case GET_USER_TWEETS:
-                mEventListener.postGetUserTweets((List<twitter4j.Status>) object);
+                mRequestCallback.postGetUserTweets((List<twitter4j.Status>) object);
                 break;
             case POST_TWEET:
-                mEventListener.postPostTweet();
+                mRequestCallback.postPostTweet();
                 break;
         }
     }

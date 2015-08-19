@@ -16,7 +16,7 @@ import com.yahoo.shopping.twitterclient.asynctask.UserInfoAsyncTask;
 import com.yahoo.shopping.twitterclient.fragments.UserTimelineFragment;
 import com.yahoo.shopping.twitterclient.models.UserModel;
 
-public class UserInfoActivity extends AppCompatActivity implements UserInfoAsyncTask.PostGetUserInfo {
+public class UserInfoActivity extends AppCompatActivity implements UserInfoAsyncTask.PostGetUserInfoListner {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

@@ -26,9 +26,9 @@ public class UserInfoAsyncTask extends AsyncTask<String, Void, UserModel> {
     private TwitterClientApplication mApplication;
     private Twitter mTwitter;
     private Context mContext;
-    private PostGetUserInfo mHandler;
+    private PostGetUserInfoListner mHandler;
 
-    public UserInfoAsyncTask(PostGetUserInfo handler, Context context) {
+    public UserInfoAsyncTask(PostGetUserInfoListner handler, Context context) {
         mHandler = handler;
         mContext = context;
         mApplication = (TwitterClientApplication) context.getApplicationContext();
@@ -76,7 +76,7 @@ public class UserInfoAsyncTask extends AsyncTask<String, Void, UserModel> {
         mHandler.postGetUserInfo(user);
     }
 
-    public interface PostGetUserInfo {
+    public interface PostGetUserInfoListner {
         void postGetUserInfo(UserModel user);
     }
 }

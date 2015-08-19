@@ -22,8 +22,10 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.activeandroid.query.Delete;
 import com.activeandroid.query.Select;
 import com.yahoo.shopping.twitterclient.R;
+import com.yahoo.shopping.twitterclient.activities.TwitterActivity;
 import com.yahoo.shopping.twitterclient.adapters.TweetAdapter;
 import com.yahoo.shopping.twitterclient.applications.TwitterClientApplication;
 import com.yahoo.shopping.twitterclient.asynctask.GenericTwitterRequestAsyncTask;
@@ -169,7 +171,7 @@ public class UserTimelineFragment extends Fragment
             NetworkInfo[] networkInfo = connectivity.getAllNetworkInfo();
 
             if (networkInfo != null) {
-                for (NetworkInfo info: networkInfo) {
+                for (NetworkInfo info : networkInfo) {
                     if (info.getState() == NetworkInfo.State.CONNECTED) {
                         return true;
                     }
@@ -194,6 +196,7 @@ public class UserTimelineFragment extends Fragment
 
     private void showLoginButton() {
         mFragmentView.findViewById(R.id.activity_twitterlist_tv_info).setVisibility(View.INVISIBLE);
+        mFragmentView.findViewById(R.id.activity_twitterlist_pb_loading_indicator).setVisibility(View.INVISIBLE);
         mFragmentView.findViewById(R.id.activity_twitterlist_btn_login).setVisibility(View.VISIBLE);
     }
 
@@ -219,7 +222,6 @@ public class UserTimelineFragment extends Fragment
         refreshTweetList();
     }
 
-
     @Override
     public void postGetRequestToken(Object object) {
         Log.i(TAG, "postGetRequestToken");
@@ -233,7 +235,8 @@ public class UserTimelineFragment extends Fragment
     @Override
     public void postGetAccessToken() {
         showInfo(mContext.getResources().getString(R.string.loading));
-        refreshTweetList();
+
+        ((TwitterActivity) mContext).refreshTimeline();
     }
 
     @Override
@@ -276,5 +279,17 @@ public class UserTimelineFragment extends Fragment
         Log.i(UserTimelineFragment.TAG, "postPostTweet");
 
         refreshTweetList();
+    }
+
+    public void persistentCache() {
+        if (mTweetList.size() > 0) {
+            Log.i(TAG, "remove all from cache");
+            new Delete().from(TweetModel.class).execute();
+
+            Log.i(TAG, "store the tweet data in cache");
+            for (TweetModel tweet : mTweetList) {
+                tweet.save();
+            }
+        }
     }
 }

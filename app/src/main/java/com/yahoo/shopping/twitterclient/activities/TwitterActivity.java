@@ -15,6 +15,7 @@ import android.widget.Toast;
 import com.astuetz.PagerSlidingTabStrip;
 import com.yahoo.shopping.twitterclient.R;
 import com.yahoo.shopping.twitterclient.asynctask.GenericTwitterRequestAsyncTask;
+import com.yahoo.shopping.twitterclient.asynctask.UserInfoAsyncTask;
 import com.yahoo.shopping.twitterclient.constants.CommandType;
 import com.yahoo.shopping.twitterclient.constants.TwitterConstant;
 import com.yahoo.shopping.twitterclient.fragments.UserMentionsFragment;
@@ -27,27 +28,27 @@ import java.util.List;
 public class TwitterActivity extends AppCompatActivity implements PostTweetDialogFragment.OnFinishEditing {
     private static final String TAG = TwitterActivity.class.getSimpleName();
 
-    UserTimelineFragment mTwitterListFragment;
-    UserMentionsFragment mMentionListFragment;
+    UserTimelineFragment mUserTimelineFragment;
+    UserMentionsFragment mUserMentionsFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_timeline);
 
-        mTwitterListFragment = new UserTimelineFragment();
-        mMentionListFragment = new UserMentionsFragment();
+        mUserTimelineFragment = new UserTimelineFragment();
+        mUserMentionsFragment = new UserMentionsFragment();
 
         // handle intent get access token
         Uri uri = getIntent().getData();
         if (uri != null && uri.toString().startsWith(TwitterConstant.TWITTER_CALLBACK_URL)) {
             String verifier = uri.getQueryParameter(TwitterConstant.URL_TWITTER_OAUTH_VERIFIER);
-            new GenericTwitterRequestAsyncTask(mTwitterListFragment, this).execute(CommandType.GET_ACCESS_TOKEN, verifier);
+            new GenericTwitterRequestAsyncTask(mUserTimelineFragment, this).execute(CommandType.GET_ACCESS_TOKEN, verifier);
         }
 
         ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
         viewPager.setAdapter(new TwitterFragmentPageAdapter(getSupportFragmentManager(),
-                Arrays.asList(mTwitterListFragment, mMentionListFragment), Arrays.asList("Time Line", "Mentions")));
+                Arrays.asList(mUserTimelineFragment, mUserMentionsFragment), Arrays.asList("Time Line", "Mentions")));
 
         PagerSlidingTabStrip tabsStrip = (PagerSlidingTabStrip) findViewById(R.id.tabs);
         tabsStrip.setViewPager(viewPager);
@@ -105,22 +106,19 @@ public class TwitterActivity extends AppCompatActivity implements PostTweetDialo
         postTweet(tweet);
     }
 
-    private void postTweet(String tweet) {
-        new GenericTwitterRequestAsyncTask(mTwitterListFragment, this).execute(CommandType.POST_TWEET, tweet);
+    public void refreshTimeline() {
+        new GenericTwitterRequestAsyncTask(mUserTimelineFragment, this).execute(CommandType.GET_USER_TWEETS, 1);
+        new UserInfoAsyncTask(mUserMentionsFragment, this).execute();
     }
 
-//    @Override
-//    protected void onStop() {
-//        super.onStop();
-//
-//        if (mTweetList.size() > 0) {
-//            Log.i(TAG, "remove all from cache");
-//            new Delete().from(TweetModel.class).execute();
-//
-//            Log.i(TAG, "store the tweet data in cache");
-//            for (TweetModel tweet : mTweetList) {
-//                tweet.save();
-//            }
-//        }
-//    }
+    private void postTweet(String tweet) {
+        new GenericTwitterRequestAsyncTask(mUserTimelineFragment, this).execute(CommandType.POST_TWEET, tweet);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        mUserTimelineFragment.persistentCache();
+    }
 }

@@ -19,7 +19,7 @@ import com.yahoo.shopping.twitterclient.models.UserModel;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class UserMentionsFragment extends Fragment implements UserInfoAsyncTask.PostGetUserInfo {
+public class UserMentionsFragment extends Fragment implements UserInfoAsyncTask.PostGetUserInfoListner {
     private TwitterClientApplication mApplication;
     private Context mContext;
     private View mFragment;
