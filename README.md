@@ -9,4 +9,6 @@ Features
 * Tweet listing (Offline)
 * Compose a Tweet (screenshot did not show up the example tweet due to exeed api rate limit)
 * Ultilize a little material design
+* Mentions listing
+* User profile
 
